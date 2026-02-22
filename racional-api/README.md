@@ -2,6 +2,18 @@
 
 API de inversiones construida con NestJS, TypeScript y Firebase (Firestore).
 
+## API en producción
+
+La API está deployada en Google Cloud Run y disponible públicamente:
+
+- **Base URL:** `https://racional-api-708229405047.southamerica-west1.run.app`
+- **Swagger UI:** [https://racional-api-708229405047.southamerica-west1.run.app/docs](https://racional-api-708229405047.southamerica-west1.run.app/docs)
+- **Health check:** [https://racional-api-708229405047.southamerica-west1.run.app/health](https://racional-api-708229405047.southamerica-west1.run.app/health)
+
+Para probar los endpoints protegidos, usar el header `X-API-Key: racional-dev-2026`.
+
+Para cargar datos de prueba: `POST /seed` (sin API Key necesaria).
+
 ## Prerequisitos
 
 - **Node.js** >= 18
@@ -320,6 +332,24 @@ Crea datos de prueba: 2 usuarios, 2 portafolios, 10 transacciones y 12 órdenes.
 - **Respuestas estandarizadas:** Todas las respuestas siguen el formato `{ success, data, message }` para éxito y `{ success, data, message, statusCode, timestamp, path }` para errores.
 - **Guard de API Key global:** Se implementa como guard global con un decorador `@Public()` para excluir endpoints específicos.
 - **Sin tests unitarios:** Se priorizó entregar una API funcional, bien documentada y con datos de prueba (seed) sobre escribir tests. La lógica más compleja (agregación del resumen del portafolio) sería la candidata principal para tests unitarios. En producción se agregarían tests unitarios para los servicios y tests de integración para los endpoints con un emulador de Firestore.
+
+## Docker
+
+El proyecto incluye un Dockerfile multi-stage para ejecución local o deploy:
+
+```bash
+# Construir la imagen
+docker build -t racional-api .
+
+# Ejecutar el contenedor
+docker run -p 3000:3000 \
+  -e FIREBASE_SERVICE_ACCOUNT=<base64> \
+  -e API_KEY=<tu-api-key> \
+  -e NODE_ENV=development \
+  racional-api
+```
+
+La API estará disponible en `http://localhost:3000`.
 
 ## Limitaciones conocidas y mejoras para producción
 
