@@ -100,8 +100,10 @@ export class PortfoliosService {
         const value = data.quantity * data.price;
         if (data.type === 'BUY') {
           stocksValue += value;
+          cashBalance -= value;
         } else if (data.type === 'SELL') {
           stocksValue -= value;
+          cashBalance += value;
         }
       });
 
