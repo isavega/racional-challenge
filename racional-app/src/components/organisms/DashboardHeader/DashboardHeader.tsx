@@ -1,6 +1,6 @@
-import { LogoIcon } from '../../atoms';
-import { LiveIndicator } from '../../molecules';
-import { formatTimestamp } from '../../../utils/formatters';
+import { LogoIcon } from "../../atoms";
+import { LiveIndicator } from "../../molecules";
+import { formatTimestamp } from "../../../utils/formatters";
 
 interface DashboardHeaderProps {
   lastUpdated: Date | null;
@@ -11,9 +11,18 @@ export function DashboardHeader({ lastUpdated }: DashboardHeaderProps) {
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
         <LogoIcon className="h-8 w-8 text-[#0dc299]" />
-        <h1 className="text-2xl font-bold tracking-tight text-white" style={{ fontFamily: '"Rozha One", Georgia, serif' }}>
-          Racional
-        </h1>
+        <div>
+          <h1
+            className="text-2xl font-bold tracking-tight text-white"
+            style={{
+              fontFamily: '"Rozha One", Georgia, serif',
+              marginTop: "6px",
+            }}
+          >
+            Racional
+          </h1>
+          <p className="text-sm text-gray-400">Portafolio de Isabel</p>
+        </div>
       </div>
       <div className="flex items-center gap-4">
         {lastUpdated && (

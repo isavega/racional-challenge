@@ -1,4 +1,5 @@
 export { PulseDot } from './PulseDot/PulseDot';
+export { InfoTooltip } from './InfoTooltip/InfoTooltip';
 export { Badge } from './Badge/Badge';
 export { Card } from './Card/Card';
 export { ChangeIndicator } from './ChangeIndicator/ChangeIndicator';
@@ -9,6 +10,11 @@ export {
   DailyChangeIcon,
   ArrowUpIcon,
   ArrowDownIcon,
+  ReturnIcon,
+  PercentIcon,
+  IndexIcon,
+  VolatilityIcon,
+  ResetZoomIcon,
   ErrorIcon,
   EmptyChartIcon,
   LogoIcon,
