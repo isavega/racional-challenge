@@ -2,6 +2,8 @@
 
 Dashboard en tiempo real para visualizar la evolución de inversiones, construido con React, TypeScript, Firebase y Chart.js. Utiliza la tipografía y paleta de colores de [Racional](https://racional.cl/) para mantener coherencia con la marca.
 
+El documento de Firestore (`investmentEvolutions/user1`) no incluye datos del perfil del usuario; solo la evolución del portafolio. Para documentación y contexto se asume que la titular del portafolio es **Isabel**.
+
 ## Prerequisitos
 
 - **Node.js** >= 18
@@ -26,6 +28,31 @@ yarn build     # Build de producción
 yarn preview   # Preview del build
 yarn lint      # Linter (ESLint)
 ```
+
+## Deploy en Vercel
+
+El proyecto está configurado para desplegarse en [Vercel](https://vercel.com) con el archivo `vercel.json` en la raíz.
+
+### Opción 1: Deploy desde el repositorio
+
+1. Conecta tu repositorio en [vercel.com/new](https://vercel.com/new).
+2. Si el frontend está dentro de un monorepo, en **Root Directory** elige la carpeta `racional-app` (o la raíz si el repo solo contiene esta app).
+3. Vercel detectará Vite y usará `yarn build` y la salida `dist`. No hace falta configurar variables de entorno para Firebase: la configuración está en el cliente.
+4. Haz clic en **Deploy**.
+
+### Opción 2: Vercel CLI
+
+```bash
+cd racional-app
+npx vercel
+```
+
+Sigue las preguntas (link al proyecto existente o uno nuevo). Para producción: `npx vercel --prod`.
+
+### Notas
+
+- **SPA:** `vercel.json` incluye una regla `rewrites` para que todas las rutas sirvan `index.html` (útil si más adelante agregas rutas con React Router).
+- **Firebase:** La configuración de Firebase va en el código cliente (`src/lib/firebase.ts`). No es un secreto: la seguridad la definen las Firestore Security Rules. No hace falta configurar variables de entorno en Vercel para el deploy.
 
 ## Estructura del proyecto (Atomic Design)
 
