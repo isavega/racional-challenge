@@ -2,6 +2,8 @@
 
 Dashboard en tiempo real para visualizar la evolución de inversiones, construido con React, TypeScript, Firebase y Chart.js. Utiliza la tipografía y paleta de colores de [Racional](https://racional.cl/) para mantener coherencia con la marca.
 
+**Demo:** [racional-challenge.vercel.app](https://racional-challenge.vercel.app/)
+
 El documento de Firestore (`investmentEvolutions/user1`) no incluye datos del perfil del usuario; solo la evolución del portafolio. Para documentación y contexto se asume que la titular del portafolio es **Isabel**.
 
 ## Prerequisitos
@@ -19,7 +21,7 @@ yarn install
 yarn dev
 ```
 
-La aplicación estará disponible en `http://localhost:5173`.
+La aplicación estará disponible en `http://localhost:5173` (o el puerto que indique Vite en la terminal si el 5173 está ocupado).
 
 ### Otros comandos
 
@@ -32,27 +34,6 @@ yarn lint      # Linter (ESLint)
 ## Deploy en Vercel
 
 El proyecto está configurado para desplegarse en [Vercel](https://vercel.com) con el archivo `vercel.json` en la raíz.
-
-### Opción 1: Deploy desde el repositorio
-
-1. Conecta tu repositorio en [vercel.com/new](https://vercel.com/new).
-2. Si el frontend está dentro de un monorepo, en **Root Directory** elige la carpeta `racional-app` (o la raíz si el repo solo contiene esta app).
-3. Vercel detectará Vite y usará `yarn build` y la salida `dist`. No hace falta configurar variables de entorno para Firebase: la configuración está en el cliente.
-4. Haz clic en **Deploy**.
-
-### Opción 2: Vercel CLI
-
-```bash
-cd racional-app
-npx vercel
-```
-
-Sigue las preguntas (link al proyecto existente o uno nuevo). Para producción: `npx vercel --prod`.
-
-### Notas
-
-- **SPA:** `vercel.json` incluye una regla `rewrites` para que todas las rutas sirvan `index.html` (útil si más adelante agregas rutas con React Router).
-- **Firebase:** La configuración de Firebase va en el código cliente (`src/lib/firebase.ts`). No es un secreto: la seguridad la definen las Firestore Security Rules. No hace falta configurar variables de entorno en Vercel para el deploy.
 
 ## Estructura del proyecto (Atomic Design)
 
@@ -103,88 +84,34 @@ src/
 
 ## Decisiones de diseño y UX
 
-### Identidad visual de Racional
+Se utilizó Tailwind CSS para tener el diseño responsive.
 
-Se extrajeron la tipografía y paleta de colores directamente del sitio [racional.cl](https://racional.cl/) para que el dashboard se sienta como parte del producto real:
+### Funcionalidades
 
-| Token | Color | Uso |
-|---|---|---|
-| Brand green | `#0dc299` | Acento principal, indicadores positivos, elementos interactivos |
-| Brand green light | `#65d6b0` | Texto de badges, acentos secundarios |
-| Brand green vivid | `#18daae` | Estados hover |
-| Brand red | `#c6443d` | Indicadores negativos, errores |
-| Brand yellow | `#ffad28` | Advertencias (disponible para uso futuro) |
-| Surface | `#0f1219` | Fondo de página |
-| Surface card | `#162032` | Fondo de tarjetas |
-
-**Tipografía:**
-- **Product Sans** (Regular/Medium/Bold): Fuente principal de UI, self-hosted desde los mismos TTFs que usa racional.cl.
-- **Rozha One**: Fuente display para el título "Racional", idéntica a la del sitio.
-
-### Tema oscuro
-
-Se eligió un tema oscuro porque los dashboards financieros y de inversión se perciben más profesionales y reducen la fatiga visual durante sesiones prolongadas de monitoreo. Es la convención estándar en plataformas fintech como Bloomberg Terminal, Robinhood y TradingView.
-
-### Tailwind CSS v4
-
-Se eligió Tailwind CSS sobre CSS Modules por:
-- **Velocidad de desarrollo:** Las clases utilitarias permiten iterar rápidamente sin saltar entre archivos.
-- **Consistencia:** El sistema de diseño built-in (espaciado, colores, breakpoints) produce un resultado cohesivo.
-- **Responsive:** Las utilidades `sm:`, `lg:` simplifican el diseño adaptativo sin media queries manuales.
-
-### Diseño responsive
-
-- **Desktop (≥1024px):** 4 tarjetas de métricas en una fila, gráfico ancho completo.
-- **Tablet (≥640px):** 2 tarjetas por fila.
-- **Mobile (<640px):** 1 tarjeta por fila, gráfico con scroll horizontal.
-
-### Gráfico
-
-- Línea con relleno de área y gradiente para dar profundidad visual.
-- Color dinámico: verde si la tendencia es positiva (último valor > primer valor), rojo si es negativa.
-- Curva suavizada (`tension: 0.4`) para una lectura visual más agradable.
-- Tooltip personalizado mostrando fecha completa y valor formateado.
 - Rango de fechas visible en el encabezado del gráfico (ej: "Ene 2019 — Feb 2026").
-- Solo se registran los componentes de Chart.js necesarios (tree-shaking).
-
-### Tarjetas de métricas
-
-- Efecto hover sutil con transición en bordes (glow verde de marca) y fondo.
-- La variación diaria muestra tanto el monto absoluto como el porcentaje, con indicador visual verde/rojo.
-- Estilo glass-morphism con bordes semi-transparentes.
+- Zoom al gráfico
+- Tooltip informativo en cada métrica
 
 ## Listener en tiempo real
 
-El hook `useInvestmentEvolution` utiliza `onSnapshot` de Firebase v9 para escuchar cambios en el documento `investmentEvolutions/user1` en Firestore. Esto significa que:
+El hook `useInvestmentEvolution` utiliza `onSnapshot` de Firebase para escuchar cambios en el documento `investmentEvolutions/user1` en Firestore. Esto significa que:
 
 1. **Primera carga:** Se muestra un skeleton loader mientras se establece la conexión.
 2. **Actualizaciones en vivo:** Cuando el documento cambia en Firestore (desde cualquier fuente), el dashboard se actualiza automáticamente sin recargar la página. El badge "En vivo" indica que esta conexión está activa.
 3. **Limpieza automática:** Al desmontar el componente, el listener se desuscribe para evitar memory leaks.
-4. **Manejo de errores:** Si la conexión se pierde o el documento no existe, se muestra un estado apropiado con opción de reintentar.
+4. **Manejo de errores:** Si la conexión se pierde o el documento no existe, se muestra un estado con opción de reintentar.
 
-### Flujo de datos
-
-```
-Firestore (onSnapshot) → useInvestmentEvolution → DashboardPage → Organisms → Molecules → Atoms
-```
-
-El hook es completamente independiente de la UI: solo se encarga de obtener, parsear y ordenar los datos. Todo el formateo visual ocurre en `formatters.ts` y en los componentes.
-
-## Cómo adaptar la estructura de datos
-
-Si la estructura real del documento Firestore es diferente a la asumida, el hook `useInvestmentEvolution.ts` está diseñado para facilitar la adaptación. En la parte superior del archivo hay un bloque de comentarios detallado con instrucciones.
-
-### Estructura real del documento
+### Estructura del documento
 
 ```json
 {
   "array": [
     {
       "date": "Timestamp (Firestore)",
-      "portfolioValue": 1000000,
-      "dailyReturn": 0.0047,
-      "contributions": 1000000,
-      "portfolioIndex": 100
+      "portfolioValue": "number",
+      "dailyReturn": "number",
+      "contributions": "number",
+      "portfolioIndex": "number"
     }
   ]
 }
@@ -192,19 +119,9 @@ Si la estructura real del documento Firestore es diferente a la asumida, el hook
 
 No existe campo `currency` en el documento; se usa CLP por defecto basándose en el rango de valores.
 
-### Qué cambiar
-
-| Cambio necesario | Qué modificar |
-|---|---|
-| El array se llama diferente (ej: `"history"`) | Cambiar `EVOLUTION_FIELD` |
-| Las entradas tienen keys diferentes (ej: `"timestamp"`, `"amount"`) | Modificar la función `mapEntry` |
-| Se agrega un campo de moneda | Cambiar `CURRENCY_FIELD` y la extracción en `parseDocument` |
-| El documento está en otra colección/ID | Cambiar `COLLECTION` y `DOCUMENT_ID` |
-| Las fechas vienen en otro formato | Modificar la función `toISODate` |
-
 ## Uso de Inteligencia Artificial
 
-Se utilizó **Cursor** (IDE con IA integrada, basado en Claude) como herramienta de apoyo durante el desarrollo del dashboard.
+Se utilizó **Cursor** (modelo Opus 4.6) como herramienta durante el desarrollo del dashboard.
 
 ### Flujo de trabajo
 
@@ -214,21 +131,13 @@ Se utilizó **Cursor** (IDE con IA integrada, basado en Claude) como herramienta
 
 3. **Generación iterativa:** El código se generó paso a paso siguiendo el plan, verificando la compilación TypeScript después de cada grupo de archivos. No se aceptó código sin verificación — cada archivo se evaluó contra los requisitos y las mejores prácticas del ecosistema React/TypeScript.
 
-4. **Adaptación a datos reales:** Al conectar con Firestore, la estructura del documento difería de la asumida en el prompt (campo `array` en vez de `evolution`, Timestamps en vez de strings, `portfolioValue` en vez de `value`, sin campo `currency`). Se usó la API REST de Firestore para inspeccionar el documento real y la IA adaptó el hook sin modificar la arquitectura.
-
-5. **Verificación continua:** Se ejecutó `yarn build` después de cada paso significativo para detectar errores de tipos tempranamente y corregirlos antes de avanzar.
-
 ### Decisiones tomadas con apoyo de IA
 
-- **Tailwind CSS v4 sobre CSS Modules:** La IA recomendó Tailwind por producir resultados más consistentes y profesionales para dashboards oscuros con diseño responsive, y se validó que fuera coherente con el ecosistema actual.
-- **Registro selectivo de Chart.js:** La IA sugirió importar y registrar solo los componentes necesarios (`LineElement`, `PointElement`, etc.) para optimizar el bundle size.
-- **Estructura del hook adaptable:** El diseño con constantes configurables (`EVOLUTION_FIELD`, `CURRENCY_FIELD`) y función `mapEntry` separada fue una decisión conjunta para facilitar la adaptación a estructuras de datos reales.
 - **Scaffolding inicial de componentes:** La IA generó la estructura base de todos los componentes siguiendo el plan aprobado, respetando las convenciones de TypeScript estricto y separación de responsabilidades.
 
 ### Decisiones tomadas por criterio propio
 
 - **Arquitectura Atomic Design:** Se decidió refactorizar la estructura plana inicial de componentes hacia Atomic Design (atoms → molecules → organisms → templates → pages) para demostrar un enfoque escalable y profesional de organización de código. Esta decisión se tomó después de la implementación inicial, evaluando que la estructura plana no reflejaba las mejores prácticas de un proyecto frontend en producción.
-- **Paleta de colores y tipografía de Racional:** Se extrajeron los colores de marca (`#0dc299`, `#c6443d`, `#18273a`) y las fuentes (Product Sans, Rozha One) directamente del CSS de [racional.cl](https://racional.cl/), incluyendo la descarga de los archivos TTF para self-hosting. Esta decisión busca que el dashboard se sienta parte del ecosistema real del producto, no un ejercicio genérico.
-- **Formateo con `Intl.NumberFormat`:** Se eligió usar la API nativa de internacionalización del browser en lugar de librerías externas (como `numeral.js`) para reducir dependencias y aprovechar el soporte nativo de locale `es-CL` para pesos chilenos.
-- **Texto en español, código en inglés:** Decisión deliberada para un producto chileno con código mantenible por equipos internacionales.
-- **Rango de fechas en el gráfico:** Se agregó la visualización del rango temporal (ej: "Ene 2019 — Feb 2026") para dar contexto sobre la antigüedad de los datos, dado que el badge "En vivo" se refiere a la conexión en tiempo real y no a que los datos sean recientes.
+- **Paleta de colores y tipografía de Racional:** Se extrajeron los colores de marca directamente del CSS de [racional.cl](https://racional.cl/). Esta decisión busca que el dashboard se sienta parte del ecosistema real del producto, no un ejercicio genérico.
+- **Formateo con `Intl.NumberFormat`:** Se eligió usar la API nativa de internacionalización del browser en lugar de librerías externas para reducir dependencias y aprovechar el soporte nativo de locale `es-CL` para pesos chilenos.
+- **Rango de fechas en el gráfico:** Se agregó la visualización del rango temporal para dar contexto sobre la antigüedad de los datos, dado que el badge "En vivo" se refiere a la conexión en tiempo real y no a que los datos sean recientes.
