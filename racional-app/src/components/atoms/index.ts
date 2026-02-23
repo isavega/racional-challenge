@@ -1,3 +1,4 @@
+export { Avatar } from './Avatar/Avatar';
 export { PulseDot } from './PulseDot/PulseDot';
 export { InfoTooltip } from './InfoTooltip/InfoTooltip';
 export { Badge } from './Badge/Badge';

@@ -173,17 +173,25 @@ export function PortfolioChart({ data, currency }: PortfolioChartProps) {
                     index: i,
                     datasetIndex: i,
                   }));
-              return defaultItems.map((item: { datasetIndex: number; text?: string; [key: string]: unknown }) => {
-                const ds = chart.data.datasets[item.datasetIndex];
-                const color =
-                  typeof ds?.borderColor === "string" ? ds.borderColor : "#9ca3af";
-                return {
-                  ...item,
-                  fillStyle: color,
-                  strokeStyle: color,
-                  lineWidth: 0,
-                };
-              });
+              return defaultItems.map(
+                (item: {
+                  datasetIndex: number;
+                  text?: string;
+                  [key: string]: unknown;
+                }) => {
+                  const ds = chart.data.datasets[item.datasetIndex];
+                  const color =
+                    typeof ds?.borderColor === "string"
+                      ? ds.borderColor
+                      : "#9ca3af";
+                  return {
+                    ...item,
+                    fillStyle: color,
+                    strokeStyle: color,
+                    lineWidth: 0,
+                  };
+                },
+              );
             },
           },
         },
@@ -235,7 +243,7 @@ export function PortfolioChart({ data, currency }: PortfolioChartProps) {
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-white">
-            Evolución del portafolio
+            Evolución de tu portafolio
           </h2>
           {dateRange && <p className="text-xs text-gray-500">{dateRange}</p>}
         </div>

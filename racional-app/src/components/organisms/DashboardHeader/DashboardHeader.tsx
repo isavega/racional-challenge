@@ -1,4 +1,4 @@
-import { LogoIcon } from "../../atoms";
+import { Avatar, LogoIcon } from "../../atoms";
 import { LiveIndicator } from "../../molecules";
 import { formatTimestamp } from "../../../utils/formatters";
 
@@ -11,18 +11,14 @@ export function DashboardHeader({ lastUpdated }: DashboardHeaderProps) {
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
         <LogoIcon className="h-8 w-8 text-[#0dc299]" />
-        <div>
-          <h1
-            className="text-2xl font-bold tracking-tight text-white"
-            style={{
-              fontFamily: '"Rozha One", Georgia, serif',
-              marginTop: "6px",
-            }}
-          >
-            Racional
-          </h1>
-          <p className="text-sm text-gray-400">Portafolio de Isabel</p>
-        </div>
+        <h1
+          className="text-2xl font-bold tracking-tight text-white"
+          style={{
+            fontFamily: '"Rozha One", Georgia, serif',
+          }}
+        >
+          Racional
+        </h1>
       </div>
       <div className="flex items-center gap-4">
         {lastUpdated && (
@@ -31,6 +27,10 @@ export function DashboardHeader({ lastUpdated }: DashboardHeaderProps) {
           </span>
         )}
         <LiveIndicator />
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-gray-400">Portafolio de Isabel</p>
+          <Avatar initials="I" size="sm" />
+        </div>
       </div>
     </header>
   );
